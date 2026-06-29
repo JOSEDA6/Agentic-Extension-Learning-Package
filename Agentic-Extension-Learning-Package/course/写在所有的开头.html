@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>从零打造你的第一个 AI Agent —— 小白也能看懂的保姆级教程</title>
+<style>
+  :root {
+    --bg: #f5f0eb;
+    --card: #fffef9;
+    --text: #3e3a37;
+    --text-light: #6b6560;
+    --accent: #8b7e74;
+    --accent-soft: #c9b99a;
+    --code-bg: #f0ebe3;
+    --warn-bg: #fef5e7;
+    --warn-border: #e8c573;
+    --tip-bg: #edf4f0;
+    --tip-border: #8bb59e;
+    --danger-bg: #fdf0ed;
+    --danger-border: #d4a09a;
+    --border: #e5ded6;
+    --shadow: 0 2px 12px rgba(0,0,0,0.06);
+    --radius: 12px;
+    --font: "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+    --mono: "Cascadia Code", "Fira Code", "JetBrains Mono", Consolas, "Courier New", monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; font-size: 17px; }
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.8;
+    padding: 0 16px 60px;
+    max-width: 820px;
+    margin: 0 auto;
+  }
+  .hero { text-align: center; padding: 48px 20px 36px; }
+  .hero .icon { font-size: 56px; margin-bottom: 8px; }
+  .hero h1 { font-size: 2rem; font-weight: 700; letter-spacing: 0.02em; margin-bottom: 8px; }
+  .hero .subtitle { font-size: 1rem; color: var(--text-light); }
+  .toc {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 28px 32px; margin-bottom: 40px;
+    box-shadow: var(--shadow);
+  }
+  .toc h2 { font-size: 1.15rem; margin-bottom: 16px; color: var(--accent); letter-spacing: 0.03em; }
+  .toc ol { padding-left: 22px; display: flex; flex-direction: column; gap: 6px; }
+  .toc li { font-size: 0.95rem; }
+  .toc a { color: var(--text); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 0.2s, color 0.2s; }
+  .toc a:hover { color: var(--accent); border-bottom-color: var(--accent-soft); }
+  section { margin-bottom: 44px; }
+  section h2 {
+    font-size: 1.35rem; font-weight: 700; margin-bottom: 14px;
+    padding-bottom: 8px; border-bottom: 2px solid var(--accent-soft);
+    letter-spacing: 0.02em;
+  }
+  section h3 { font-size: 1.08rem; font-weight: 650; margin: 22px 0 10px; color: #5a5550; }
+  section p { margin-bottom: 12px; color: var(--text-light); }
+  section p strong { color: var(--text); }
+  .code-block {
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: var(--radius); margin: 16px 0; overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .code-block .lang-tag {
+    display: inline-block; font-size: 0.72rem; font-weight: 600;
+    color: var(--accent); background: var(--card); padding: 3px 12px;
+    margin: 10px 0 0 16px; border-radius: 999px; border: 1px solid var(--border);
+    letter-spacing: 0.05em;
+  }
+  .code-block pre {
+    margin: 0; padding: 16px 20px 18px; overflow-x: auto;
+    font-family: var(--mono); font-size: 0.82rem; line-height: 1.7; color: #4a4540;
+  }
+  .code-block code { font-family: var(--mono); }
+  .hl-kw  { color: #8b6b4a; font-weight: 600; }
+  .hl-fn  { color: #6b8a7a; }
+  .hl-str { color: #a0896e; }
+  .hl-cmt { color: #b0a89c; font-style: italic; }
+  .hl-num { color: #9b7b6b; }
+  .hl-op  { color: #c4956a; }
+  .hl-deco { color: #8b7e74; }
+  .hl-builtin { color: #7a8b9b; }
+  .callout {
+    border-radius: var(--radius); padding: 16px 20px; margin: 16px 0;
+    font-size: 0.93rem; line-height: 1.75;
+  }
+  .callout-warn { background: var(--warn-bg); border-left: 4px solid var(--warn-border); }
+  .callout-tip  { background: var(--tip-bg);  border-left: 4px solid var(--tip-border); }
+  .callout-danger { background: var(--danger-bg); border-left: 4px solid var(--danger-border); }
+  .callout strong { display: block; margin-bottom: 2px; font-size: 0.95rem; }
+  .simple-table {
+    width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 0.9rem;
+    border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);
+  }
+  .simple-table th, .simple-table td {
+    padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border);
+  }
+  .simple-table th {
+    background: var(--code-bg); font-weight: 650; color: var(--accent);
+    font-size: 0.82rem; letter-spacing: 0.03em;
+  }
+  .simple-table td { background: var(--card); }
+  .analogy {
+    background: var(--card); border: 1px dashed var(--accent-soft);
+    border-radius: var(--radius); padding: 18px 22px; margin: 14px 0;
+    font-size: 0.93rem; color: var(--text-light);
+  }
+  .analogy::before {
+    content: "💡 生活类比："; font-weight: 650; color: var(--accent);
+    display: block; margin-bottom: 4px;
+  }
+  .diagram-box {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px 24px; margin: 14px 0;
+    text-align: center; font-family: var(--mono); font-size: 0.85rem;
+    line-height: 2.2; color: var(--text-light); box-shadow: var(--shadow);
+  }
+  footer {
+    text-align: center; padding: 32px 0 16px; color: var(--text-light);
+    font-size: 0.85rem; border-top: 1px solid var(--border); margin-top: 48px;
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+  @media (max-width: 640px) {
+    html { font-size: 15px; }
+    .hero { padding: 32px 12px 24px; }
+    .hero h1 { font-size: 1.5rem; }
+    .toc { padding: 18px 20px; }
+    .code-block pre { font-size: 0.75rem; padding: 12px 14px; }
+    section h2 { font-size: 1.15rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="icon">🤖</div>
+  <h1>从零打造你的第一个 AI Agent</h1>
+  <p class="subtitle">一份连「终端是什么」都会解释的保姆级教程</p>
+</header>
+
+<nav class="toc">
+  <h2>📑 教程目录</h2>
+  <ol>
+    <li><a href="#s0">先聊聊：Agent 到底是什么？</a></li>
+    <li><a href="#s1">第一步：安装 Python（你的机器人引擎）</a></li>
+    <li><a href="#s2">第二步：安装 openai 库（机器人的"翻译官"）</a></li>
+    <li><a href="#s3">第三步：获取 API Key（机器人的"大脑"）</a></li>
+    <li><a href="#s4">第四步：写出 Agent 的全部代码</a></li>
+    <li><a href="#s5">第五步：逐行拆解 —— 每一行在干什么？</a></li>
+    <li><a href="#s6">第六步：运行你的 Agent！</a></li>
+    <li><a href="#s7">第七步：常见报错 & 解决办法</a></li>
+    <li><a href="#s8">第八步：升级你的 Agent —— 加更多工具</a></li>
+    <li><a href="#s9">附录：如何看懂 claw-code-main 这种大项目？</a></li>
+  </ol>
+</nav>
+
+<!-- ====== Section 0: 什么是Agent ====== -->
+<section id="s0">
+  <h2>0. 先聊聊：Agent 到底是什么？</h2>
+  <p>你用过 ChatGPT 吗？你问它「今天天气怎么样」，它回答「抱歉，我无法获取实时信息」。这是因为单纯的 ChatGPT 只有一个<strong>嘴巴</strong>——它能说话，但不能动手。</p>
+  <p>而 <strong>AI Agent</strong>（智能体），就是给这个「大脑」装上<strong>手和脚</strong>。它不仅能思考，还能：查天气 API、计算数学题、读取文件、发邮件……</p>
+  <div class="analogy">
+    把大模型想象成一个被困在房间里、只靠对讲机与外界沟通的天才。Agent 就是你给这个天才配了一群小助手，每个小助手说：「老板，我能帮你查天气」「老板，我能帮你算数学」。天才通过对讲机喊：「计算！3+5」，小助手算出 8 回报给天才，天才接着说：「等于 8」。
+  </div>
+  <p>今天我们就要写出这样一个 Agent：一个能<strong>自己调用计算器</strong>来回答数学问题的 Python 程序。整个过程只需要 <strong>约 50 行代码</strong>，你复制粘贴就能跑。</p>
+  <div class="callout callout-tip">
+    <strong>🧠 核心概念速览</strong>
+    一个最简 Agent 只做三件事：<br>
+    ① 收到你的问题 → ② 把问题发给大模型（大脑）→ ③ 大模型说「我需要算个数」，Agent 去算完把结果塞回去 → ④ 大模型给出最终答案。<br>
+    这就是所谓的 <strong>「调用—反馈」循环</strong>。
+  </div>
+</section>
+
+<!-- ====== Section 1: 安装Python ====== -->
+<section id="s1">
+  <h2>1. 第一步：安装 Python（你的机器人引擎）</h2>
+  <p>Python 是一门编程语言，你可以把它理解成「机器人的发动机」。没有它，代码只是一堆文字，跑不起来。</p>
+
+  <h3>1.1 检查你的电脑是否已经装了 Python</h3>
+  <p>按键盘上的 <strong>Win + R</strong>，输入 <code>cmd</code> 然后回车，会弹出一个黑乎乎的窗口——这叫<strong>终端</strong>（也叫命令行）。在里头输入：</p>
+  <div class="code-block">
+    <span class="lang-tag">shell</span>
+    <pre><code>python --version</code></pre>
+  </div>
+  <p>如果出现类似 <code>Python 3.10.x</code> 或 <code>Python 3.11.x</code> 的字样，说明你已经装了，跳过下一步。</p>
+
+  <h3>1.2 如果没装：下载安装</h3>
+  <p>用浏览器打开：<strong>https://www.python.org/downloads/</strong></p>
+  <p>点击黄色大按钮下载。下载完成后双击打开，<strong style="color:#c44;">务必勾选底部的 "Add Python to PATH"</strong>，然后点 "Install Now"，一路下一步直到完成。</p>
+  <div class="callout callout-warn">
+    <strong>⚠️ 注意！「Add Python to PATH」一定要勾上</strong>
+    如果不勾，后面在终端里输入 <code>python</code> 会提示「找不到命令」，你得重新安装一遍。
+  </div>
+  <p>装完后，关掉终端重新打开，再输一次 <code>python --version</code>，看到版本号就成功了。</p>
+</section>
+
+<!-- ====== Section 2: 安装openai库 ====== -->
+<section id="s2">
+  <h2>2. 第二步：安装 openai 库（机器人的"翻译官"）</h2>
+  <p>Python 本身只会执行基础命令。要让 Python 能跟 OpenAI 的服务器对话，需要一个<strong>翻译官</strong>——在编程里，这叫<strong>库</strong>（library）。</p>
+  <p>打开终端（Win + R → 输入 <code>cmd</code> → 回车），输入下面这行命令然后回车：</p>
+  <div class="code-block">
+    <span class="lang-tag">shell</span>
+    <pre><code>pip install openai</code></pre>
+  </div>
+  <p>你会看到一堆文字滚过去，最后出现 <code>Successfully installed openai-x.x.x</code> 就代表装好了。</p>
+  <div class="callout callout-tip">
+    <strong>💡 pip 是什么？</strong>
+    pip 是 Python 的「应用商店」。你需要什么功能，就用 <code>pip install 名字</code> 来下载安装。<code>openai</code> 就是我们今天唯一的依赖。
+  </div>
+  <div class="callout callout-warn">
+    <strong>⚠️ 如果提示「pip 不是内部命令」</strong>
+    说明你装 Python 时没勾「Add Python to PATH」。去重新运行 Python 安装程序，选「Modify」，把那个勾打上。
+  </div>
+</section>
+
+<!-- ====== Section 3: 获取API Key ====== -->
+<section id="s3">
+  <h2>3. 第三步：获取 API Key（机器人的"大脑"使用权）</h2>
+  <p>大模型（比如 GPT-4o）运行在 OpenAI 的服务器上。想用它，你需要一把<strong>钥匙</strong>——API Key。可以理解成「大模型的会员卡」。</p>
+
+  <h3>3.1 注册并获取 Key</h3>
+  <ol style="padding-left:22px; color:var(--text-light); line-height:2;">
+    <li>打开 <strong>https://platform.openai.com/signup</strong> 注册账号</li>
+    <li>登录后访问 <strong>https://platform.openai.com/api-keys</strong></li>
+    <li>点击 <strong>"Create new secret key"</strong> 按钮</li>
+    <li>给 Key 起个名字（比如 "my-agent"），点击创建</li>
+    <li><strong style="color:#c44;">立刻复制那串以 sk- 开头的字符串！</strong>这个 Key 只显示一次，关掉页面就再也看不到了</li>
+  </ol>
+
+  <h3>3.2 充值（需要一点点钱）</h3>
+  <p>OpenAI 的 API 按量收费。不过别慌，<strong>充 5 美元（约 36 元人民币）就够了</strong>，够你玩好几个月。我们用的 <code>gpt-4o-mini</code> 模型非常便宜，问 100 个问题大概花 1 美分。</p>
+  <p>充值入口：<strong>https://platform.openai.com/settings/organization/billing</strong></p>
+  <div class="callout callout-danger">
+    <strong>🔒 绝对不要把你的 API Key 发给任何人！</strong>
+    任何人拿到你的 Key 就可以冒充你调用 GPT，花你的钱。不要把 Key 截图发朋友圈、不要贴在 GitHub 上、不要发给网友。
+  </div>
+
+  <h3>3.3 备选：国产模型也完全可以</h3>
+  <p>如果你搞不定 OpenAI（需要海外手机号验证等），可以用国产模型代替，价格更便宜，注册更简单：</p>
+  <table class="simple-table">
+    <thead><tr><th>服务商</th><th>注册地址</th><th>便宜模型</th></tr></thead>
+    <tbody>
+      <tr><td>DeepSeek</td><td>platform.deepseek.com</td><td>deepseek-chat</td></tr>
+      <tr><td>通义千问</td><td>dashscope.aliyun.com</td><td>qwen-turbo</td></tr>
+      <tr><td>智谱 GLM</td><td>open.bigmodel.cn</td><td>glm-4-flash</td></tr>
+      <tr><td>Moonshot</td><td>platform.moonshot.cn</td><td>moonshot-v1-8k</td></tr>
+    </tbody>
+  </table>
+  <p>所有国产模型的调用方式都和 OpenAI 兼容，只需换一个 <code>base_url</code> 地址即可。后面代码里会标注怎么改。</p>
+</section>
+
+<!-- ====== Section 4: 写出Agent代码 ====== -->
+<section id="s4">
+  <h2>4. 第四步：写出 Agent 的全部代码</h2>
+  <p>好，现在是最激动人心的部分。我们要亲手写出约 50 行代码，创造一个能自己「思考 + 动手」的机器人。</p>
+
+  <h3>4.1 在桌面新建一个文件夹</h3>
+  <p>在你的电脑桌面上，右键 → 新建 → 文件夹，命名为 <code>my-first-agent</code>。</p>
+
+  <h3>4.2 新建代码文件</h3>
+  <p>打开<strong>记事本</strong>（按 Win 键，输入「记事本」回车）。把下面的代码<strong>完整复制粘贴</strong>进去：</p>
+
+  <div class="code-block">
+    <span class="lang-tag">Python — agent.py（完整代码，约50行）</span>
+    <pre><code><span class="hl-cmt">#!/usr/bin/env python3</span>
+<span class="hl-cmt">"""my_first_agent.py —— 你的第一个 AI Agent。"""</span>
+
+<span class="hl-kw">import</span> json
+<span class="hl-kw">from</span> openai <span class="hl-kw">import</span> OpenAI
+
+<span class="hl-cmt"># ── 1. 设置钥匙和地址 ───────────────────────────</span>
+client = OpenAI(
+    api_key=<span class="hl-str">"{{YOUR_API_KEY}}"</span>,          <span class="hl-cmt"># ← 替换成你的 Key</span>
+    base_url=<span class="hl-str">"https://api.openai.com/v1"</span>  <span class="hl-cmt"># 国产模型改这里</span>
+)
+
+<span class="hl-cmt"># ── 2. 给 Agent 配备工具箱 ──────────────────────</span>
+TOOLS = [{
+    <span class="hl-str">"type"</span>: <span class="hl-str">"function"</span>,
+    <span class="hl-str">"function"</span>: {
+        <span class="hl-str">"name"</span>: <span class="hl-str">"calculator"</span>,
+        <span class="hl-str">"description"</span>: <span class="hl-str">"计算数学表达式，支持加减乘除和括号。例如: '2+3*4' 返回 14"</span>,
+        <span class="hl-str">"parameters"</span>: {
+            <span class="hl-str">"type"</span>: <span class="hl-str">"object"</span>,
+            <span class="hl-str">"properties"</span>: {
+                <span class="hl-str">"expression"</span>: {
+                    <span class="hl-str">"type"</span>: <span class="hl-str">"string"</span>,
+                    <span class="hl-str">"description"</span>: <span class="hl-str">"要计算的数学表达式，例如 '15*23+100'"</span>
+                }
+            },
+            <span class="hl-str">"required"</span>: [<span class="hl-str">"expression"</span>]
+        }
+    }
+}]
+
+<span class="hl-cmt"># ── 3. 执行工具的 "手" ─────────────────────────</span>
+<span class="hl-kw">def</span> <span class="hl-fn">execute_tool</span>(name, args):
+    <span class="hl-str">"""Agent 的手 —— 真正去干活。"""</span>
+    <span class="hl-kw">if</span> name == <span class="hl-str">"calculator"</span>:
+        <span class="hl-kw">return</span> <span class="hl-fn">str</span>(<span class="hl-builtin">eval</span>(args[<span class="hl-str">"expression"</span>]))
+    <span class="hl-kw">return</span> <span class="hl-str">f"未知工具: </span>{name}<span class="hl-str">"</span>
+
+<span class="hl-cmt"># ── 4. Agent 的大脑 + 循环 ─────────────────────</span>
+<span class="hl-kw">def</span> <span class="hl-fn">agent</span>(question):
+    <span class="hl-str">"""核心循环：问问题 → 大模型思考 → 需要工具就调用 → 再思考 → 给出答案"""</span>
+    messages = [
+        {<span class="hl-str">"role"</span>: <span class="hl-str">"system"</span>, <span class="hl-str">"content"</span>: <span class="hl-str">"你是一个有用的助手。遇到数学计算时，必须使用 calculator 工具。"</span>},
+        {<span class="hl-str">"role"</span>: <span class="hl-str">"user"</span>,   <span class="hl-str">"content"</span>: question}
+    ]
+
+    <span class="hl-kw">while</span> <span class="hl-builtin">True</span>:   <span class="hl-cmt"># 循环，直到大模型不再要求工具</span>
+        response = client.chat.completions.create(
+            model=<span class="hl-str">"gpt-4o-mini"</span>,       <span class="hl-cmt"># 便宜又好用的模型</span>
+            messages=messages,
+            tools=TOOLS
+        )
+        msg = response.choices[<span class="hl-num">0</span>].message
+
+        <span class="hl-kw">if</span> msg.tool_calls:
+            <span class="hl-cmt"># 大模型说 "我要用工具！" —— 帮它执行</span>
+            messages.append(msg)   <span class="hl-cmt"># 把大模型的 "工具请求" 记入对话</span>
+            <span class="hl-kw">for</span> tc <span class="hl-kw">in</span> msg.tool_calls:
+                name = tc.function.name
+                args = json.loads(tc.function.arguments)
+                result = <span class="hl-fn">execute_tool</span>(name, args)
+                messages.append({
+                    <span class="hl-str">"role"</span>: <span class="hl-str">"tool"</span>,
+                    <span class="hl-str">"tool_call_id"</span>: tc.id,
+                    <span class="hl-str">"content"</span>: result
+                })
+                <span class="hl-fn">print</span>(<span class="hl-str">f"🔧 调用工具 </span>{name}<span class="hl-str">(</span>{args}<span class="hl-str">) → 结果: </span>{result}<span class="hl-str">"</span>)
+        <span class="hl-kw">else</span>:
+            <span class="hl-cmt"># 大模型直接给出了答案 —— 返回！</span>
+            <span class="hl-kw">return</span> msg.content
+
+<span class="hl-cmt"># ── 5. 启动！───────────────────────────────────</span>
+<span class="hl-kw">if</span> __name__ == <span class="hl-str">"__main__"</span>:
+    <span class="hl-fn">print</span>(<span class="hl-str">"🤖 Agent 启动！输入你的问题（输入 quit 退出）\n"</span>)
+    <span class="hl-kw">while</span> <span class="hl-builtin">True</span>:
+        q = <span class="hl-fn">input</span>(<span class="hl-str">"👤 你: "</span>).strip()
+        <span class="hl-kw">if</span> q.lower() == <span class="hl-str">"quit"</span>:
+            <span class="hl-kw">break</span>
+        answer = <span class="hl-fn">agent</span>(q)
+        <span class="hl-fn">print</span>(<span class="hl-str">f"🤖 Agent: </span>{answer}\n<span class="hl-str">"</span>)
+</code></pre>
+  </div>
+
+  <h3>4.3 保存文件</h3>
+  <p>在记事本里，点击 <strong>文件 → 另存为</strong>：</p>
+  <ol style="padding-left:22px; color:var(--text-light); line-height:2;">
+    <li>定位到你刚创建的 <code>my-first-agent</code> 文件夹</li>
+    <li>文件名输入：<code>agent.py</code></li>
+    <li><strong style="color:#c44;">注意：保存类型选「所有文件 (*.*)」</strong>，不然记事本会偷偷给你加一个 <code>.txt</code> 后缀</li>
+    <li>编码保持 UTF-8</li>
+  </ol>
+  <div class="callout callout-danger">
+    <strong>⚠️ 绝对不要忘记！</strong>
+    把代码里的 <code>{{YOUR_API_KEY}}</code> 替换成你第 3 步拿到的真实 Key（以 sk- 开头的那串）。不替换的话，Agent 跑不起来！
+  </div>
+</section>
+
+<!-- ====== Section 5: 逐行拆解 ====== -->
+<section id="s5">
+  <h2>5. 第五步：逐行拆解 —— 每一行在干什么？</h2>
+  <p>复制粘贴跑起来固然爽，但<strong>理解每一行为什么这么写</strong>，你才能从「复制侠」变成「创造者」。下面把整段代码拆成 5 块来讲解。</p>
+
+  <h3>第 1 块：导入依赖</h3>
+  <div class="code-block"><pre><code><span class="hl-kw">import</span> json
+<span class="hl-kw">from</span> openai <span class="hl-kw">import</span> OpenAI</code></pre></div>
+  <p><code>json</code> 是 Python 自带的，用来解析工具参数。<code>openai</code> 是我们刚才用 pip 安装的翻译官。</p>
+  <div class="analogy">
+    这就像你造机器人之前，先把需要的零件摆在桌上。<code>json</code> 是一把螺丝刀（Python 自带），<code>openai</code> 是一个特殊的发动机（需要额外下载）。
+  </div>
+
+  <h3>第 2 块：配置钥匙</h3>
+  <div class="code-block"><pre><code>client = OpenAI(
+    api_key=<span class="hl-str">"sk-your-key-here"</span>,
+    base_url=<span class="hl-str">"https://api.openai.com/v1"</span>
+)</code></pre></div>
+  <p><code>client</code> 就是你和 OpenAI 服务器之间的<strong>专线电话</strong>。<code>api_key</code> 是密码，<code>base_url</code> 是电话号码（服务器地址）。</p>
+
+  <h3>第 3 块：定义工具（说明书）</h3>
+  <div class="code-block"><pre><code>TOOLS = [{
+    <span class="hl-str">"type"</span>: <span class="hl-str">"function"</span>,
+    <span class="hl-str">"function"</span>: {
+        <span class="hl-str">"name"</span>: <span class="hl-str">"calculator"</span>,
+        <span class="hl-str">"description"</span>: <span class="hl-str">"计算数学表达式..."</span>,
+        <span class="hl-str">"parameters"</span>: { ... }
+    }
+}]</code></pre></div>
+  <p>这是一个<strong>说明书</strong>，告诉大模型：「嘿，我这有一个计算器可以用。你如果想算数，就按这个格式喊我。」大模型读完说明书，就知道什么时候该调用工具、参数怎么填。</p>
+  <div class="analogy">
+    你给助手写了一本「技能手册」：第 1 页写着「计算器 —— 用法：把算式给我，我帮你算」。助手读了手册，遇到数学题就知道翻到第 1 页。
+  </div>
+
+  <h3>第 4 块：执行工具（手）</h3>
+  <div class="code-block"><pre><code><span class="hl-kw">def</span> <span class="hl-fn">execute_tool</span>(name, args):
+    <span class="hl-kw">if</span> name == <span class="hl-str">"calculator"</span>:
+        <span class="hl-kw">return</span> <span class="hl-fn">str</span>(<span class="hl-builtin">eval</span>(args[<span class="hl-str">"expression"</span>]))</code></pre></div>
+  <p>当大模型说「我要用 calculator」，这行代码就真正去算。<code>eval()</code> 是 Python 自带的一个函数，能把字符串 <code>"3+5"</code> 算成数字 <code>8</code>。</p>
+
+  <h3>第 5 块：核心循环（灵魂所在）</h3>
+  <p>这是整个 Agent 最关键的逻辑。以下面的流程图来看：</p>
+  <div class="code-block"><pre><code><span class="hl-kw">while</span> <span class="hl-builtin">True</span>:
+    response = client.chat.completions.create(
+        model=<span class="hl-str">"gpt-4o-mini"</span>,
+        messages=messages,
+        tools=TOOLS            <span class="hl-cmt"># ← 把 "技能手册" 发给大模型</span>
+    )
+    msg = response.choices[<span class="hl-num">0</span>].message
+
+    <span class="hl-kw">if</span> msg.tool_calls:         <span class="hl-cmt"># 大模型要求调工具</span>
+        <span class="hl-cmt"># ... 执行工具，把结果塞回 messages ...</span>
+    <span class="hl-kw">else</span>:                      <span class="hl-cmt"># 大模型直接给答案</span>
+        <span class="hl-kw">return</span> msg.content</code></pre></div>
+
+  <p>这个过程画成图是这样的：</p>
+  <div class="diagram-box">
+    👤 你问问题<br>
+    ⬇<br>
+    🧠 大模型收到问题 + 技能手册<br>
+    ⬇<br>
+    ❓ 大模型判断：需要工具吗？<br>
+    ╱&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;╲<br>
+    需要&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;不需要<br>
+    ⬇&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⬇<br>
+    🔧 执行工具&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;💬 直接回答<br>
+    ⬇<br>
+    📩 把结果塞回对话<br>
+    ⬇<br>
+    🔄 再问大模型（回到开头）
+  </div>
+  <p>这个循环会一直转，直到大模型觉得「信息够了，我可以回答了」，然后 <code>return</code> 把答案交出来。</p>
+
+  <div class="callout callout-tip">
+    <strong>🧠 这个循环模式来自 claw-code-main 的 query_engine.py</strong>
+    在 claw-code-main 中，你可以看到完全一样的模式：<code>submit_message()</code> 收到用户输入 → 匹配工具 → 执行工具 → 返回结果。只不过它更复杂（有 token 预算、会话持久化、权限检查等）。我们保留了最核心的骨架，去掉了所有「暂时用不上的肌肉」。
+  </div>
+</section>
+
+<!-- ====== Section 6: 运行 ====== -->
+<section id="s6">
+  <h2>6. 第六步：运行你的 Agent！</h2>
+
+  <h3>6.1 打开终端，进入你的文件夹</h3>
+  <p>按 <strong>Win + R</strong> → 输入 <code>cmd</code> → 回车。在黑窗口里输入：</p>
+  <div class="code-block">
+    <span class="lang-tag">shell</span>
+    <pre><code>cd Desktop\my-first-agent</code></pre>
+  </div>
+  <p><code>cd</code> 的意思是「切换目录」（change directory），这行命令让你「走进」桌面的 <code>my-first-agent</code> 文件夹。</p>
+
+  <h3>6.2 启动 Agent</h3>
+  <div class="code-block">
+    <span class="lang-tag">shell</span>
+    <pre><code>python agent.py</code></pre>
+  </div>
+  <p>如果一切正常，你会看到：</p>
+  <div class="code-block"><pre><code>🤖 Agent 启动！输入你的问题（输入 quit 退出）
+
+👤 你: </code></pre></div>
+
+  <h3>6.3 试试这些问题</h3>
+  <table class="simple-table">
+    <thead><tr><th>你输入的问题</th><th>Agent 会怎么做</th></tr></thead>
+    <tbody>
+      <tr><td><code>15 * 23 + 100 等于多少？</code></td><td>调用 calculator → 返回 445</td></tr>
+      <tr><td><code>你好，你是谁？</code></td><td>不需要工具，直接回答</td></tr>
+      <tr><td><code>(58 + 42) * 7 / 2 算一下</code></td><td>调用 calculator → 返回 350.0</td></tr>
+      <tr><td><code>今天天气怎么样？</code></td><td>诚实地说自己查不了</td></tr>
+    </tbody>
+  </table>
+
+  <p>你会看到类似这样的输出：</p>
+  <div class="code-block"><pre><code>👤 你: 15 * 23 + 100 等于多少？
+🔧 调用工具 calculator({'expression': '15*23+100'}) → 结果: 445
+🤖 Agent: 15 × 23 + 100 = 445</code></pre></div>
+
+  <p>看到那个 <code>🔧 调用工具</code> 了吗？那一行证明了你的 Agent 真的在「动手」！它不是直接背答案，而是<strong>调用了计算器工具，拿到了结果，再组织语言告诉你</strong>。</p>
+
+  <div class="callout callout-warn">
+    <strong>⚠️ 安全提醒</strong>
+    <code>eval()</code> 会执行任何 Python 代码。在我们的 Agent 里用它安全，因为输入来自大模型而不是用户。但以后在自己的项目里，永远不要对用户输入使用 <code>eval()</code>。
+  </div>
+</section>
+
+<!-- ====== Section 7: 常见报错 ====== -->
+<section id="s7">
+  <h2>7. 第七步：常见报错 & 解决办法</h2>
+  <p>新手写代码，报错是家常便饭。看到红色错误信息不要慌——<strong>报错是 Python 在帮你找问题</strong>，它告诉你的每一行都是线索。</p>
+
+  <h3>① <code>ModuleNotFoundError: No module named 'openai'</code></h3>
+  <p><strong>意思：</strong>「我找不到 openai 这个库」</p>
+  <p><strong>解决：</strong>你没装 openai。终端里执行 <code>pip install openai</code></p>
+
+  <h3>② <code>SyntaxError: invalid syntax</code></h3>
+  <p><strong>意思：</strong>「你写的某一行语法不对，我看不懂」</p>
+  <p><strong>解决：</strong>最常见的原因是少写了冒号 <code>:</code>、括号没配对、缩进不对。检查错误提示里指出的那一行。</p>
+
+  <h3>③ <code>IndentationError: expected an indented block</code></h3>
+  <p><strong>意思：</strong>「你说要开始一个代码块（比如 <code>if</code> 或 <code>def</code> 后面），但我没看到缩进」</p>
+  <p><strong>解决：</strong>在 Python 里，<code>if</code>、<code>def</code>、<code>while</code> 等语句的冒号后面，下一行<strong>必须用 4 个空格缩进</strong>。检查你是不是漏了缩进。</p>
+
+  <h3>④ <code>AuthenticationError: Incorrect API key provided</code></h3>
+  <p><strong>意思：</strong>「你的 API Key 不对」</p>
+  <p><strong>解决：</strong>检查你是不是把 <code>{{YOUR_API_KEY}}</code> 替换成真实的 Key 了？有没有多复制空格？Key 是否已过期或被删除了？</p>
+
+  <h3>⑤ <code>RateLimitError: You exceeded your current quota</code></h3>
+  <p><strong>意思：</strong>「你的账户余额不够了」</p>
+  <p><strong>解决：</strong>去 OpenAI 后台充值。或者切换到更便宜的模型（比如把 <code>gpt-4o-mini</code> 改成 <code>gpt-3.5-turbo</code>）。</p>
+
+  <h3>⑥ 终端里输入 <code>python</code> 后提示「不是内部或外部命令」</h3>
+  <p><strong>解决：</strong>重装 Python，务必勾选「Add Python to PATH」。或者搜「Windows 添加 Python 到环境变量」。</p>
+
+  <div class="callout callout-tip">
+    <strong>💡 遇到上面没列出的报错怎么办？</strong>
+    把错误信息复制下来，去 Google 搜或者问 ChatGPT。90% 的情况下，你都不是第一个遇到这个问题的人。
+  </div>
+</section>
+
+<!-- ====== Section 8: 升级Agent ====== -->
+<section id="s8">
+  <h2>8. 第八步：升级你的 Agent —— 加更多工具</h2>
+  <p>现在你的 Agent 只有一个「计算器」工具。但真正强大的 Agent 可以装很多工具。下面给你一个<strong>加天气查询工具的模板</strong>（模拟版）：</p>
+
+  <h3>新增工具：模拟天气查询</h3>
+  <p>在 <code>TOOLS</code> 列表里多加一项：</p>
+  <div class="code-block">
+    <span class="lang-tag">Python — 新增工具定义</span>
+    <pre><code>{
+    <span class="hl-str">"type"</span>: <span class="hl-str">"function"</span>,
+    <span class="hl-str">"function"</span>: {
+        <span class="hl-str">"name"</span>: <span class="hl-str">"get_weather"</span>,
+        <span class="hl-str">"description"</span>: <span class="hl-str">"查询指定城市的当前天气（模拟数据）"</span>,
+        <span class="hl-str">"parameters"</span>: {
+            <span class="hl-str">"type"</span>: <span class="hl-str">"object"</span>,
+            <span class="hl-str">"properties"</span>: {
+                <span class="hl-str">"city"</span>: {<span class="hl-str">"type"</span>: <span class="hl-str">"string"</span>, <span class="hl-str">"description"</span>: <span class="hl-str">"城市名称，例如 '北京'"</span>}
+            },
+            <span class="hl-str">"required"</span>: [<span class="hl-str">"city"</span>]
+        }
+    }
+}</code></pre>
+  </div>
+  <p>然后在 <code>execute_tool</code> 函数里加上对应的处理：</p>
+  <div class="code-block">
+    <span class="lang-tag">Python — 新增工具执行逻辑</span>
+    <pre><code><span class="hl-kw">def</span> <span class="hl-fn">execute_tool</span>(name, args):
+    <span class="hl-kw">if</span> name == <span class="hl-str">"calculator"</span>:
+        <span class="hl-kw">return</span> <span class="hl-fn">str</span>(<span class="hl-builtin">eval</span>(args[<span class="hl-str">"expression"</span>]))
+    <span class="hl-kw">if</span> name == <span class="hl-str">"get_weather"</span>:                     <span class="hl-cmt"># ← 新增</span>
+        city = args[<span class="hl-str">"city"</span>]
+        <span class="hl-kw">return</span> <span class="hl-str">f"</span>{city}<span class="hl-str">: 晴天，25°C，湿度 60%（模拟数据）"</span>
+    <span class="hl-kw">return</span> <span class="hl-str">f"未知工具: </span>{name}<span class="hl-str">"</span></code></pre>
+  </div>
+  <p>加完这两块之后，你就可以问 Agent「北京今天天气怎么样？」，它会自动调用天气工具并回答。</p>
+
+  <div class="callout callout-tip">
+    <strong>🧠 工具的扩展是 Agent 能力的核心</strong>
+    claw-code-main 里有几十个工具：文件读取、命令执行、网络搜索、MCP 插件……每一个工具都是 Agent 的一只「手」。你现在已经学会了给 Agent 装手的完整流程：<br>
+    ① 在 TOOLS 列表里写「说明书」→ ② 在 execute_tool 里写「怎么干」→ ③ Agent 自动学会用。
+  </div>
+</section>
+
+<!-- ====== Section 9: 如何看懂大项目 ====== -->
+<section id="s9">
+  <h2>9. 附录：如何看懂 claw-code-main 这种大项目？</h2>
+  <p>现在你已经亲手写过一个 Agent 了。回头看 <code>claw-code-main</code> 这个庞大的项目时，你可能会觉得「哇，好复杂」。别怕，下面教你怎么用一个简单的思路看穿它：</p>
+
+  <h3>9.1 核心思路：找「三件套」</h3>
+  <p>任何一个 Agent 项目，你只需要找到<strong>三个东西</strong>：</p>
+  <table class="simple-table">
+    <thead><tr><th>要找什么</th><th>在我们教程里对应</th><th>在 claw-code-main 里对应</th></tr></thead>
+    <tbody>
+      <tr><td><strong>LLM 调用</strong>（大脑）</td><td><code>client.chat.completions.create(...)</code></td><td><code>query_engine.py</code> 中的 <code>submit_message()</code></td></tr>
+      <tr><td><strong>工具定义</strong>（说明书）</td><td><code>TOOLS = [{...}]</code></td><td><code>tools.py</code> 中的 <code>PORTED_TOOLS</code></td></tr>
+      <tr><td><strong>主循环</strong>（心跳）</td><td><code>while True: ...</code></td><td><code>runtime.py</code> 中的 <code>run_turn_loop()</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>9.2「删除法」理解代码</h3>
+  <p>看一个复杂文件时，问自己：<strong>如果我把这段删掉，Agent 还能运行吗？</strong></p>
+  <ul style="padding-left:22px; color:var(--text-light); line-height:2;">
+    <li>如果能 —— 那这段就是辅助代码（日志、美化输出、缓存等），可以先跳过不看</li>
+    <li>如果不能 —— 那这段就是核心逻辑，需要仔细理解</li>
+  </ul>
+  <p>用这个方法看 <code>query_engine.py</code>：<code>compact_messages_if_needed()</code>（消息压缩）可以删，但 <code>submit_message()</code>（提交消息）绝对不能删。</p>
+
+  <h3>9.3 大项目 = 核心循环 + N 层包装</h3>
+  <p>claw-code-main 看起来很庞大，但本质上是：</p>
+  <div class="diagram-box">
+    我们的 50 行 Agent<br>
+    ＋ 命令路由（把用户输入匹配到合适的工具）<br>
+    ＋ Token 预算管理（防止花太多钱）<br>
+    ＋ 会话持久化（把聊天记录存到硬盘）<br>
+    ＋ 权限系统（防止危险操作）<br>
+    ＋ CLI 界面（命令行参数解析）<br>
+    ＝ claw-code-main
+  </div>
+  <p>你不需要第一天就看懂全部。先把核心三件套吃透，然后每次只加一个「包装层」来理解，循序渐进。</p>
+
+  <div class="callout callout-tip">
+    <strong>🎯 你学会的不只是一段代码</strong>
+    通过这 50 行代码，你掌握了 AI Agent 最核心的设计模式：<strong>感知 → 决策 → 执行 → 反馈</strong>。这个模式是所有 AI Agent（从简单的聊天机器人到复杂的自动化系统）的共同骨架。恭喜你，你已经入门了！
+  </div>
+</section>
+
+<footer>
+  <p>📖 本教程参考了 <code>claw-code-main</code> 项目的核心架构模式</p>
+  <p>✏️ 由 AI 编程启蒙导师生成 · 可自由修改和分享</p>
+  <p style="margin-top:8px;">有问题？去 <a href="https://platform.openai.com/docs" target="_blank">OpenAI 官方文档</a> 或搜索「Python Agent tutorial」</p>
+</footer>
+
+</body>
+</html>
